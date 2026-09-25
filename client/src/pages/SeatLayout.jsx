@@ -59,12 +59,22 @@ const SeatLayout = () => {
       <div className="flex flex-wrap items-center justify-center gap-2">
         {Array.from({ length: count }, (_, i) => {
           const seatId = `${row}${i + 1}`;
+          const isSelected = selectedSeats.includes(seatId);
+          const isOccupied = occupiedSeats.includes(seatId);
+
           return (
             <button
               key={seatId}
+              type="button"
               onClick={() => handleSeatClick(seatId)}
-              className={`h-8 w-8 rounded border border-primary/60 cursor-pointer ${selectedSeats.includes(seatId) && "bg-primary text-white"}
-              ${occupiedSeats.includes(seatId) && "opacity-50"}`}
+              disabled={isOccupied}
+              className={`h-8 w-8 rounded border text-xs font-medium transition ${
+                isOccupied
+                  ? "bg-gray-500 text-gray-200 border-gray-500 opacity-60 cursor-not-allowed"
+                  : isSelected
+                    ? "bg-primary text-white border-primary cursor-pointer"
+                    : "border-primary/60 text-white cursor-pointer hover:bg-primary/10"
+              }`}
             >
               {seatId}
             </button>
@@ -156,6 +166,21 @@ const SeatLayout = () => {
         <p className="text-gray-400 text-sm mb-6">SCREEN SIDE</p>
 
         <div className="flex flex-col items-center mt-10 text-sm text-gray-300">
+          <div className="flex items-center gap-4 mb-4 text-xs text-gray-300">
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded border border-primary/60 bg-transparent"></span>
+              Available
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded bg-primary"></span>
+              Selected
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="w-4 h-4 rounded bg-gray-500 opacity-60"></span>
+              Booked
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 md:grid-cols-1 gap-8 md:gap-2 mb-6">
             {groupRows[0].map((row) => renderSeats(row))}
           </div>
