@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { dummyTrailers } from "../assets/assets";
-import BlurSection from "./Blurcircle";
+import BlurSection from "./BlurCircle";
 import ReactPlayer from "react-player";
 import { PlayCircleIcon } from "lucide-react";
 
@@ -25,6 +25,7 @@ const TrailerSection = () => {
         {dummyTrailers.map((trailer) => (
           <div
             key={trailer.image}
+            onClick={() => setCurrentTrailer(trailer)}
             className="relative group-hover:not-hover:opacity-50 hover:-translate-y-1 duration-300 transition max-md:h-60 md:max-h-60 cursor-pointer"
           >
             <img

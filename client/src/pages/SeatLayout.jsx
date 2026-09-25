@@ -4,7 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import Loading from "../components/Loading";
 import { ArrowRightIcon, ClockIcon } from "lucide-react";
 import isoTimeFormat from "../lib/isoTimeFormat";
-import BlurSection from "../components/Blurcircle";
+import BlurSection from "../components/BlurCircle";
 import toast from "react-hot-toast";
 import { useAppContext } from "../context/AppContext";
 
@@ -99,7 +99,7 @@ const SeatLayout = () => {
         return toast.error("Please select a time and seats");
       }
       const { data } = await axios.post(
-        `/api/booking/create}`,
+        `/api/booking/create`,
         {
           showId: selectedTime.showId,
           selectedSeats,

@@ -42,7 +42,7 @@ export const AppProvider = ({ children }) => {
       const { data } = await axios.get("/api/show/all");
 
       if (data.success) {
-        setShows(data.shows);
+        setShows(Array.isArray(data.shows) ? data.shows : []);
       } else {
         toast.error(data.message);
       }
@@ -58,7 +58,7 @@ export const AppProvider = ({ children }) => {
       });
 
       if (data.success) {
-        setFavoriteMovies(data.movies);
+        setFavoriteMovies(Array.isArray(data.movies) ? data.movies : []);
       } else {
         toast.error(data.message);
       }

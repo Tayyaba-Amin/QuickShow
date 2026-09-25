@@ -1,4 +1,4 @@
-import BlurSection from "../components/Blurcircle";
+import BlurSection from "../components/BlurCircle";
 import MovieCard from "../components/MovieCard";
 import { useAppContext } from "../context/AppContext";
 

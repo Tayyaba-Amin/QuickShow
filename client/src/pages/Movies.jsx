@@ -1,4 +1,4 @@
-import BlurSection from "../components/Blurcircle";
+import BlurSection from "../components/BlurCircle";
 import MovieCard from "../components/MovieCard";
 import { useAppContext } from "../context/AppContext";
 const Movies = () => {
@@ -10,7 +10,7 @@ const Movies = () => {
       <BlurSection bottom="50px" right="50px" />
       <h1 className="text-lg font-medium my-4">Now Showing</h1>
       <div className="flex flex-wrap max-sm:justify-center gap-8">
-        {shows.map((show) => (
+        {(Array.isArray(shows) ? shows : []).map((show) => (
           <MovieCard key={show._id} movie={show} />
         ))}
       </div>
