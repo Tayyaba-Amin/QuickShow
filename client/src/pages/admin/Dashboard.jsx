@@ -54,7 +54,14 @@ const Dashboard = () => {
         headers: { Authorization: `Bearer ${await getToken()}` },
       });
       if (data.success) {
-        setDashboardData(data.dashboardData);
+        setDashboardData(
+          data.dashboardData || {
+            totalBookings: 0,
+            totalRevenue: 0,
+            activeShows: [],
+            totalUser: 0,
+          },
+        );
         setLoading(false);
       } else {
         toast.error(data.message);

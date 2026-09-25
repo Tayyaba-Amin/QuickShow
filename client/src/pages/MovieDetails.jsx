@@ -62,7 +62,19 @@ const MovieDetails = () => {
     <div className="px-6 md:px-16 lg:px-40 pt-30 md:pt-50">
       <div className="flex flex-col md:flex-row gap-8 max-w-6xl mx-auto">
         <img
-          src={image_base_url + show.movie.poster_path}
+          src={
+            image_base_url +
+            (show.movie.poster_path || show.movie.backdrop_path)
+          }
+          onError={(event) => {
+            if (
+              show.movie.backdrop_path &&
+              event.currentSrc !== image_base_url + show.movie.backdrop_path
+            ) {
+              event.currentTarget.src =
+                image_base_url + show.movie.backdrop_path;
+            }
+          }}
           className="max-md:mx-auto rounded-xl h-104 max-w-70 object-cover"
         />
         <div className="flex flex-col relative gap-3 ">
@@ -100,7 +112,7 @@ const MovieDetails = () => {
               className="bg-gray-700 p-2.5 rounded-full transition cursor-pointer active:scale-95"
             >
               <Heart
-                className={`w-5 h-5 ${favoriteMovies.find((movie) => (movie._id === id ? "fill-primary text-primary" : ""))}`}
+                className={`w-5 h-5 ${favoriteMovies.some((movie) => movie._id === id) ? "fill-primary text-primary" : ""}`}
               />
             </button>
           </div>
@@ -126,7 +138,7 @@ const MovieDetails = () => {
       </div>
       <DateSelect dateTime={show.dateTime} id={id} />
       <p className="text-lg font-medium mt-20 mb-8">You may also like</p>
-      <div className="fle flex-wrap max-sm:justify-center gap-8">
+      <div className="flex flex-wrap max-sm:justify-center gap-8">
         {shows.slice(0, 4).map((movie, index) => (
           <MovieCard key={index} movie={movie} />
         ))}

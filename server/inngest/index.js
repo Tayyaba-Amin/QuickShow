@@ -2,6 +2,7 @@ import { Inngest } from "inngest";
 import User from "../models/User.js";
 import Booking from "../models/Booking.js";
 import Show from "../models/Show.js";
+import sendEmail from "../configs/nodeMailer.js";
 
 export const inngest = new Inngest({
     id: "movie-ticket-booking",
@@ -109,9 +110,82 @@ const releaseSeatsAndDeleteBooking = inngest.createFunction(
     }
 );
 
+const sendBookingConfirmationEmail = inngest.createFunction(
+    {
+        id: "send-booking-confirmation-email",
+        triggers: {
+            event: "app/show.booked",
+        },
+    },
+    async ({ event }) => {
+        const { bookingId } = event.data;
+
+        const booking = await Booking.findById(bookingId)
+            .populate({
+                path: "show",
+                populate: { path: "movie", model: "Movie" },
+            })
+            .populate("user");
+
+        if (!booking || !booking.user || !booking.show || !booking.show.movie) {
+            console.log(`Booking confirmation skipped: invalid booking ${bookingId}`);
+            return;
+        }
+
+        const showDate = new Date(booking.show.showDateTime).toLocaleString("en-US", {
+            weekday: "short",
+            month: "short",
+            day: "numeric",
+            year: "numeric",
+            hour: "numeric",
+            minute: "2-digit",
+        });
+
+        const bookedSeats = booking.bookedSeats?.join(", ") || "N/A";
+        const movieTitle = booking.show.movie.title;
+
+        const emailBody = `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #f8fafc; color: #0f172a; border-radius: 12px;">
+                <div style="background: linear-gradient(135deg, #2563eb, #7c3aed); padding: 24px; border-radius: 12px; color: white; text-align: center;">
+                    <h2 style="margin: 0; font-size: 28px;">🎟️ Booking Confirmed</h2>
+                </div>
+
+                <div style="padding: 24px 0;">
+                    <p style="font-size: 16px; margin: 0 0 12px;">Hi <strong>${booking.user.name || "there"}</strong>,</p>
+                    <p style="font-size: 16px; line-height: 1.6; margin: 0 0 16px;">
+                        Your ticket for <strong>${movieTitle}</strong> has been successfully booked.
+                    </p>
+                </div>
+
+                <div style="background: white; border: 1px solid #e2e8f0; border-radius: 10px; padding: 18px; margin-bottom: 20px;">
+                    <p style="margin: 6px 0;"><strong>Movie:</strong> ${movieTitle}</p>
+                    <p style="margin: 6px 0;"><strong>Date & Time:</strong> ${showDate}</p>
+                    <p style="margin: 6px 0;"><strong>Seats:</strong> ${bookedSeats}</p>
+                    <p style="margin: 6px 0;"><strong>Total Amount:</strong> $${Number(booking.amount || 0).toFixed(2)}</p>
+                </div>
+
+                <p style="font-size: 15px; line-height: 1.7; margin: 0 0 12px;">
+                    We look forward to welcoming you at the theater. Please arrive 15 minutes before showtime.
+                </p>
+
+                <p style="font-size: 15px; margin: 0; color: #475569;">
+                    Thank you for choosing QuickShow.
+                </p>
+            </div>
+        `;
+
+        await sendEmail({
+            to: booking.user.email,
+            subject: `Payment Confirmation: ${movieTitle} booked!`,
+            body: emailBody,
+        });
+    }
+);
+
 export const functions = [
     syncUserCreation,
     syncUserUpdation,
     syncUserDeletion,
     releaseSeatsAndDeleteBooking,
+    sendBookingConfirmationEmail
 ];
